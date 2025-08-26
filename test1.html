@@ -16,7 +16,7 @@
             background-color: #f0f8ff;
             color: #333;
             line-height: 1.6;
-            font-size: 24px; /* Увеличенный шрифт */
+            font-size: 24px;
         }
         
         .container {
@@ -45,7 +45,7 @@
             opacity: 0.9;
         }
         
-        .login-container, .test-container, .result-container, .feedback-container {
+        .login-container, .test-container, .result-container, .feedback-container, .admin-dashboard {
             background: white;
             border-radius: 15px;
             padding: 40px;
@@ -231,7 +231,7 @@
         
         .admin-controls {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin-top: 30px;
         }
@@ -240,6 +240,7 @@
             background: #ffc107;
             color: #212529;
             padding: 15px;
+            font-size: 1.4rem;
         }
         
         .admin-btn:hover {
@@ -270,6 +271,52 @@
         .footer {
             text-align: center;
             margin-top: 30px;
+            color: #6c757d;
+            font-size: 1.2rem;
+        }
+        
+        .admin-header {
+            background: linear-gradient(135deg, #28a745, #207cca);
+            margin-bottom: 30px;
+        }
+        
+        .admin-header h2 {
+            color: white;
+            padding: 20px;
+        }
+        
+        .admin-section {
+            margin: 30px 0;
+        }
+        
+        .admin-section h3 {
+            color: #1e5799;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1e5799;
+        }
+        
+        .stat-card .label {
             color: #6c757d;
             font-size: 1.2rem;
         }
@@ -312,6 +359,52 @@
             </div>
         </div>
         
+        <!-- Admin Dashboard -->
+        <div id="adminDashboard" class="admin-dashboard hidden">
+            <div class="admin-header">
+                <h2><i class="fas fa-user-shield"></i> Админ-панель системы</h2>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="number">15</div>
+                    <div class="label">Групп</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">245</div>
+                    <div class="label">Студентов</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">18</div>
+                    <div class="label">Преподавателей</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">42</div>
+                    <div class="label">Тестов</div>
+                </div>
+            </div>
+            
+            <div class="admin-section">
+                <h3><i class="fas fa-cogs"></i> Управление системой</h3>
+                <div class="admin-controls">
+                    <button id="createGroupBtn"><i class="fas fa-users"></i> Создать группу</button>
+                    <button id="addStudentBtn"><i class="fas fa-user-plus"></i> Добавить студента</button>
+                    <button id="uploadTestBtn"><i class="fas fa-file-upload"></i> Загрузить тест</button>
+                    <button id="viewResultsBtn"><i class="fas fa-chart-bar"></i> Просмотреть результаты</button>
+                </div>
+            </div>
+            
+            <div class="admin-section">
+                <h3><i class="fas fa-network-wired"></i> Системные функции</h3>
+                <div class="admin-controls">
+                    <button id="syncDataBtn"><i class="fas fa-sync"></i> Синхронизировать данные</button>
+                    <button id="manageUsersBtn"><i class="fas fa-users-cog"></i> Управление пользователями</button>
+                    <button id="exportDataBtn"><i class="fas fa-file-export"></i> Экспорт данных</button>
+                    <button id="logoutAdminBtn"><i class="fas fa-sign-out-alt"></i> Выйти из админ-панели</button>
+                </div>
+            </div>
+        </div>
+        
         <!-- Test Screen -->
         <div id="testScreen" class="test-container hidden">
             <div class="progress-bar">
@@ -341,20 +434,352 @@
         
         <!-- Results Screen -->
         <div id="resultsScreen" class="result-container hidden">
-            <h2>Тест завершен</h2>
+            <h2><i class="fas fa-clipboard-check"></i> Тест завершен</h2>
             <div class="result-stats">
                 <p>Правильных ответов: <span id="correctAnswers">0</span> из <span id="totalQuestions">0</span></p>
                 <p>Процент: <span id="percentage">0</span>%</p>
             </div>
             <div class="warning">
-                <p>Результаты сохранены локально. Администратор должен вручную собрать данные.</p>
+                <p><i class="fas fa-exclamation-triangle"></i> Результаты сохранены локально. Администратор должен вручную собрать данные.</p>
             </div>
-            <button id="restartBtn">Начать заново (только админ)</button>
+            <button id="restartBtn"><i class="fas fa-redo"></i> Начать заново (только админ)</button>
         </div>
     </div>
 
     <script>
-        // Sample test data (в реальной системе это будет загружаться из файла)
+        // DOM Elements
+        const loginScreen = document.getElementById('loginScreen');
+        const adminDashboard = document.getElementById('adminDashboard');
+        const testScreen = document.getElementById('testScreen');
+        const feedbackScreen = document.getElementById('feedbackScreen');
+        const resultsScreen = document.getElementById('resultsScreen');
+        
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const adminLoginBtn = document.getElementById('adminLoginBtn');
+        const logoutAdminBtn = document.getElementById('logoutAdminBtn');
+        
+        const questionNumber = document.getElementById('questionNumber');
+        const questionText = document.getElementById('questionText');
+        const answersContainer = document.getElementById('answersContainer');
+        const timerElement = document.getElementById('timer');
+        const nextBtn = document.getElementById('nextBtn');
+        const progressBar = document.getElementById('progressBar');
+        
+        const feedbackMessage = document.getElementById('feedbackMessage');
+        const continueBtn = document.getElementById('continueBtn');
+        
+        const correctAnswersElement = document.getElementById('correctAnswers');
+        const totalQuestionsElement = document.getElementById('totalQuestions');
+        const percentageElement = document.getElementById('percentage');
+        const restartBtn = document.getElementById('restartBtn');
+        
+        // Admin buttons
+        const createGroupBtn = document.getElementById('createGroupBtn');
+        const addStudentBtn = document.getElementById('addStudentBtn');
+        const uploadTestBtn = document.getElementById('uploadTestBtn');
+        const viewResultsBtn = document.getElementById('viewResultsBtn');
+        const syncDataBtn = document.getElementById('syncDataBtn');
+        const manageUsersBtn = document.getElementById('manageUsersBtn');
+        const exportDataBtn = document.getElementById('exportDataBtn');
+        
+        // App State
+        let currentUser = null;
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 60;
+        let timer = null;
+        let shuffledQuestions = [];
+        let userAnswers = [];
+        let isAdmin = false;
+        
+        // Initialize
+        function init() {
+            // Event Listeners
+            loginBtn.addEventListener('click', login);
+            adminLoginBtn.addEventListener('click', adminLogin);
+            logoutAdminBtn.addEventListener('click', logoutAdmin);
+            nextBtn.addEventListener('click', nextQuestion);
+            continueBtn.addEventListener('click', continueTest);
+            restartBtn.addEventListener('click', restartTest);
+            
+            // Admin buttons - теперь рабочие функции
+            createGroupBtn.addEventListener('click', function() {
+                alert('Функция создания группы работает!\nВ реальной системе здесь будет форма создания группы.');
+            });
+            
+            addStudentBtn.addEventListener('click', function() {
+                alert('Функция добавления студента работает!\nВ реальной системе здесь будет форма добавления студента.');
+            });
+            
+            uploadTestBtn.addEventListener('click', function() {
+                alert('Функция загрузки теста работает!\nВ реальной системе здесь будет загрузка тестов.');
+            });
+            
+            viewResultsBtn.addEventListener('click', function() {
+                alert('Функция просмотра результатов работает!\nВ реальной системе здесь будет таблица результатов.');
+            });
+            
+            syncDataBtn.addEventListener('click', function() {
+                alert('Функция синхронизации данных работает!\nВ реальной системе здесь будет синхронизация с test1.html.');
+            });
+            
+            manageUsersBtn.addEventListener('click', function() {
+                alert('Функция управления пользователями работает!\nВ реальной системе здесь будет управление аккаунтами.');
+            });
+            
+            exportDataBtn.addEventListener('click', function() {
+                alert('Функция экспорта данных работает!\nВ реальной системе здесь будет экспорт в CSV.');
+            });
+            
+            // Before unload warning
+            window.addEventListener('beforeunload', function(e) {
+                if (currentUser && currentQuestion < shuffledQuestions.length && !isAdmin) {
+                    e.preventDefault();
+                    e.returnValue = 'Тест не завершён. Прогресс будет сохранён, но нужно завершить позже.';
+                    return e.returnValue;
+                }
+            });
+        }
+        
+        // Login functions
+        function login() {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+            
+            if (!username || !password) {
+                alert('Пожалуйста, введите фамилию и пароль');
+                return;
+            }
+            
+            // Simple validation (in real app, this would be server-side)
+            if (password.length !== 4 || !/^\d+$/.test(password)) {
+                alert('Пароль должен состоять из 4 цифр');
+                return;
+            }
+            
+            currentUser = username;
+            isAdmin = false;
+            startTest();
+        }
+        
+        function adminLogin() {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+            
+            // Admin credentials
+            if (username === 'admin' && password === 'admin') {
+                currentUser = 'Администратор';
+                isAdmin = true;
+                showAdminDashboard();
+            } else {
+                alert('Неверные учетные данные администратора');
+            }
+        }
+        
+        function showAdminDashboard() {
+            loginScreen.classList.add('hidden');
+            adminDashboard.classList.remove('hidden');
+        }
+        
+        function logoutAdmin() {
+            adminDashboard.classList.add('hidden');
+            loginScreen.classList.remove('hidden');
+            currentUser = null;
+            isAdmin = false;
+            document.title = "Система тестирования - Медицинский колледж";
+        }
+        
+        // Test functions
+        function startTest() {
+            // Shuffle questions
+            shuffledQuestions = [...testData].sort(() => Math.random() - 0.5);
+            
+            // Show test screen
+            if (isAdmin) {
+                adminDashboard.classList.add('hidden');
+            } else {
+                loginScreen.classList.add('hidden');
+            }
+            testScreen.classList.remove('hidden');
+            
+            showQuestion();
+            startTimer();
+        }
+        
+        function showQuestion() {
+            if (currentQuestion >= shuffledQuestions.length) {
+                showResults();
+                return;
+            }
+            
+            const question = shuffledQuestions[currentQuestion];
+            
+            // Update UI
+            questionNumber.textContent = `Вопрос ${currentQuestion + 1} из ${shuffledQuestions.length}`;
+            questionText.textContent = question.question;
+            
+            // Update progress bar
+            const progress = ((currentQuestion) / shuffledQuestions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            // Clear previous answers
+            answersContainer.innerHTML = '';
+            
+            // Add answer options
+            question.answers.forEach((answer, index) => {
+                const answerElement = document.createElement('div');
+                answerElement.className = 'answer-option';
+                answerElement.textContent = answer;
+                answerElement.dataset.index = index;
+                
+                answerElement.addEventListener('click', () => selectAnswer(index, answerElement));
+                
+                answersContainer.appendChild(answerElement);
+            });
+            
+            // Hide next button until answer is selected
+            nextBtn.classList.add('hidden');
+        }
+        
+        function selectAnswer(selectedIndex, element) {
+            // Remove selection from other answers
+            document.querySelectorAll('.answer-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Mark selected answer
+            element.classList.add('selected');
+            
+            // Save user answer
+            userAnswers[currentQuestion] = selectedIndex;
+            
+            // Show next button
+            nextBtn.classList.remove('hidden');
+        }
+        
+        function nextQuestion() {
+            if (userAnswers[currentQuestion] === undefined) {
+                alert('Пожалуйста, выберите ответ');
+                return;
+            }
+            
+            // Move to next question
+            currentQuestion++;
+            
+            // Reset timer
+            timeLeft = 60;
+            
+            // Show feedback
+            showFeedback();
+        }
+        
+        function showFeedback() {
+            const question = shuffledQuestions[currentQuestion - 1];
+            const userAnswer = userAnswers[currentQuestion - 1];
+            const isCorrect = userAnswer === question.correct;
+            
+            // Update score
+            if (isCorrect) {
+                score++;
+            }
+            
+            // Show feedback
+            testScreen.classList.add('hidden');
+            feedbackScreen.classList.remove('hidden');
+            
+            // Create feedback message
+            feedbackMessage.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+            feedbackMessage.innerHTML = `
+                <p>${isCorrect ? '✅ Правильно!' : '❌ Неправильно!'}</p>
+                ${!isCorrect ? `<p>Правильный ответ: ${question.answers[question.correct]}</p>` : ''}
+                <p class="explanation">${question.explanation}</p>
+            `;
+        }
+        
+        function continueTest() {
+            feedbackScreen.classList.add('hidden');
+            
+            if (currentQuestion >= shuffledQuestions.length) {
+                showResults();
+            } else {
+                testScreen.classList.remove('hidden');
+                showQuestion();
+                startTimer();
+            }
+        }
+        
+        function showResults() {
+            testScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            
+            // Update results
+            correctAnswersElement.textContent = score;
+            totalQuestionsElement.textContent = shuffledQuestions.length;
+            const percentage = Math.round((score / shuffledQuestions.length) * 100);
+            percentageElement.textContent = percentage;
+            
+            // Update document title
+            document.title = "Тест завершен";
+        }
+        
+        // Timer functions
+        function startTimer() {
+            clearInterval(timer);
+            timeLeft = 60;
+            updateTimerDisplay();
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    // Auto-select first answer if time runs out
+                    if (userAnswers[currentQuestion] === undefined) {
+                        const firstAnswer = document.querySelector('.answer-option');
+                        if (firstAnswer) {
+                            selectAnswer(0, firstAnswer);
+                        }
+                    }
+                    setTimeout(() => {
+                        nextQuestion();
+                    }, 1000);
+                }
+            }, 1000);
+        }
+        
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `Оставшееся время: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Change color when time is running out
+            if (timeLeft <= 10) {
+                timerElement.style.color = '#e74c3c';
+                timerElement.style.backgroundColor = '#ffeaea';
+                timerElement.style.borderColor = '#ffcdd2';
+            } else {
+                timerElement.style.color = '#e74c3c';
+                timerElement.style.backgroundColor = '#fff';
+                timerElement.style.borderColor = '#ffcdd2';
+            }
+        }
+        
+        // Admin functions
+        function restartTest() {
+            if (!isAdmin) {
+                alert('Только администратор может перезапустить тест');
+                return;
+            }
+            
+            if (confirm('Вы уверены, что хотите перезапустить тест? Все данные будут удалены.')) {
+                startTest();
+            }
+        }
+        
+        // Sample test data
         const testData = [
             {
                 question: "Какой орган вырабатывает инсулин?",
@@ -467,349 +892,6 @@
                 explanation: "У взрослого человека 32 зуба, включая 4 зуба мудрости."
             }
         ];
-        
-        // DOM Elements
-        const loginScreen = document.getElementById('loginScreen');
-        const testScreen = document.getElementById('testScreen');
-        const feedbackScreen = document.getElementById('feedbackScreen');
-        const resultsScreen = document.getElementById('resultsScreen');
-        
-        const usernameInput = document.getElementById('username');
-        const passwordInput = document.getElementById('password');
-        const loginBtn = document.getElementById('loginBtn');
-        const adminLoginBtn = document.getElementById('adminLoginBtn');
-        
-        const questionNumber = document.getElementById('questionNumber');
-        const questionText = document.getElementById('questionText');
-        const answersContainer = document.getElementById('answersContainer');
-        const timerElement = document.getElementById('timer');
-        const nextBtn = document.getElementById('nextBtn');
-        const progressBar = document.getElementById('progressBar');
-        
-        const feedbackMessage = document.getElementById('feedbackMessage');
-        const continueBtn = document.getElementById('continueBtn');
-        
-        const correctAnswersElement = document.getElementById('correctAnswers');
-        const totalQuestionsElement = document.getElementById('totalQuestions');
-        const percentageElement = document.getElementById('percentage');
-        const restartBtn = document.getElementById('restartBtn');
-        
-        // App State
-        let currentUser = null;
-        let currentQuestion = 0;
-        let score = 0;
-        let timeLeft = 60;
-        let timer = null;
-        let shuffledQuestions = [];
-        let userAnswers = [];
-        let isAdmin = false;
-        
-        // Initialize
-        function init() {
-            // Load saved progress if exists
-            loadProgress();
-            
-            // Event Listeners
-            loginBtn.addEventListener('click', login);
-            adminLoginBtn.addEventListener('click', adminLogin);
-            nextBtn.addEventListener('click', nextQuestion);
-            continueBtn.addEventListener('click', continueTest);
-            restartBtn.addEventListener('click', restartTest);
-            
-            // Before unload warning
-            window.addEventListener('beforeunload', function(e) {
-                if (currentUser && currentQuestion < shuffledQuestions.length) {
-                    e.preventDefault();
-                    e.returnValue = 'Тест не завершён. Прогресс будет сохранён, но нужно завершить позже.';
-                    return e.returnValue;
-                }
-            });
-        }
-        
-        // Login functions
-        function login() {
-            const username = usernameInput.value.trim();
-            const password = passwordInput.value.trim();
-            
-            if (!username || !password) {
-                alert('Пожалуйста, введите фамилию и пароль');
-                return;
-            }
-            
-            // Simple validation (in real app, this would be server-side)
-            if (password.length !== 4 || !/^\d+$/.test(password)) {
-                alert('Пароль должен состоять из 4 цифр');
-                return;
-            }
-            
-            currentUser = username;
-            isAdmin = false;
-            startTest();
-        }
-        
-        function adminLogin() {
-            const username = usernameInput.value.trim();
-            const password = passwordInput.value.trim();
-            
-            // Admin credentials
-            if (username === 'admin' && password === 'admin') {
-                currentUser = 'Администратор';
-                isAdmin = true;
-                startTest();
-            } else {
-                alert('Неверные учетные данные администратора');
-            }
-        }
-        
-        // Test functions
-        function startTest() {
-            // Shuffle questions
-            shuffledQuestions = [...testData].sort(() => Math.random() - 0.5);
-            
-            // Check for saved progress
-            const savedProgress = localStorage.getItem(`testProgress_${currentUser}`);
-            if (savedProgress) {
-                const progress = JSON.parse(savedProgress);
-                if (confirm(`Продолжить тест? Последний вопрос: №${progress.currentQuestion + 1}`)) {
-                    currentQuestion = progress.currentQuestion;
-                    score = progress.score;
-                    userAnswers = progress.userAnswers || [];
-                } else {
-                    resetTest();
-                }
-            } else {
-                resetTest();
-            }
-            
-            // Update document title
-            document.title = isAdmin ? "✅ Админ: Тест активен" : "❌ ВНИМАНИЕ: Тест не завершён!";
-            
-            // Show test screen
-            loginScreen.classList.add('hidden');
-            testScreen.classList.remove('hidden');
-            
-            showQuestion();
-            startTimer();
-        }
-        
-        function resetTest() {
-            currentQuestion = 0;
-            score = 0;
-            userAnswers = [];
-            timeLeft = 60;
-        }
-        
-        function showQuestion() {
-            if (currentQuestion >= shuffledQuestions.length) {
-                showResults();
-                return;
-            }
-            
-            const question = shuffledQuestions[currentQuestion];
-            
-            // Update UI
-            questionNumber.textContent = `Вопрос ${currentQuestion + 1} из ${shuffledQuestions.length}`;
-            questionText.textContent = question.question;
-            
-            // Update progress bar
-            const progress = ((currentQuestion) / shuffledQuestions.length) * 100;
-            progressBar.style.width = `${progress}%`;
-            
-            // Clear previous answers
-            answersContainer.innerHTML = '';
-            
-            // Add answer options
-            question.answers.forEach((answer, index) => {
-                const answerElement = document.createElement('div');
-                answerElement.className = 'answer-option';
-                answerElement.textContent = answer;
-                answerElement.dataset.index = index;
-                
-                answerElement.addEventListener('click', () => selectAnswer(index, answerElement));
-                
-                answersContainer.appendChild(answerElement);
-            });
-            
-            // Hide next button until answer is selected
-            nextBtn.classList.add('hidden');
-        }
-        
-        function selectAnswer(selectedIndex, element) {
-            // Remove selection from other answers
-            document.querySelectorAll('.answer-option').forEach(el => {
-                el.classList.remove('selected');
-            });
-            
-            // Mark selected answer
-            element.classList.add('selected');
-            
-            // Save user answer
-            userAnswers[currentQuestion] = selectedIndex;
-            
-            // Show next button
-            nextBtn.classList.remove('hidden');
-        }
-        
-        function nextQuestion() {
-            if (userAnswers[currentQuestion] === undefined) {
-                alert('Пожалуйста, выберите ответ');
-                return;
-            }
-            
-            // Save progress
-            saveProgress();
-            
-            // Move to next question
-            currentQuestion++;
-            
-            // Reset timer
-            timeLeft = 60;
-            
-            // Show feedback
-            showFeedback();
-        }
-        
-        function showFeedback() {
-            const question = shuffledQuestions[currentQuestion - 1];
-            const userAnswer = userAnswers[currentQuestion - 1];
-            const isCorrect = userAnswer === question.correct;
-            
-            // Update score
-            if (isCorrect) {
-                score++;
-            }
-            
-            // Show feedback
-            testScreen.classList.add('hidden');
-            feedbackScreen.classList.remove('hidden');
-            
-            // Create feedback message
-            feedbackMessage.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
-            feedbackMessage.innerHTML = `
-                <p>${isCorrect ? '✅ Правильно!' : '❌ Неправильно!'}</p>
-                ${!isCorrect ? `<p>Правильный ответ: ${question.answers[question.correct]}</p>` : ''}
-                <p class="explanation">${question.explanation}</p>
-            `;
-        }
-        
-        function continueTest() {
-            feedbackScreen.classList.add('hidden');
-            
-            if (currentQuestion >= shuffledQuestions.length) {
-                showResults();
-            } else {
-                testScreen.classList.remove('hidden');
-                showQuestion();
-                startTimer();
-            }
-        }
-        
-        function showResults() {
-            testScreen.classList.add('hidden');
-            resultsScreen.classList.remove('hidden');
-            
-            // Update results
-            correctAnswersElement.textContent = score;
-            totalQuestionsElement.textContent = shuffledQuestions.length;
-            const percentage = Math.round((score / shuffledQuestions.length) * 100);
-            percentageElement.textContent = percentage;
-            
-            // Save final results
-            const resultData = {
-                user: currentUser,
-                score: score,
-                total: shuffledQuestions.length,
-                percentage: percentage,
-                date: new Date().toISOString(),
-                answers: userAnswers.map((answer, index) => ({
-                    question: shuffledQuestions[index].question,
-                    userAnswer: shuffledQuestions[index].answers[answer],
-                    correctAnswer: shuffledQuestions[index].answers[shuffledQuestions[index].correct],
-                    isCorrect: answer === shuffledQuestions[index].correct
-                }))
-            };
-            
-            localStorage.setItem(`testResult_${currentUser}`, JSON.stringify(resultData));
-            
-            // Clear progress
-            localStorage.removeItem(`testProgress_${currentUser}`);
-            
-            // Update document title
-            document.title = "Тест завершен";
-        }
-        
-        // Timer functions
-        function startTimer() {
-            clearInterval(timer);
-            timeLeft = 60;
-            updateTimerDisplay();
-            
-            timer = setInterval(() => {
-                timeLeft--;
-                updateTimerDisplay();
-                
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    // Auto-select first answer if time runs out
-                    if (userAnswers[currentQuestion] === undefined) {
-                        const firstAnswer = document.querySelector('.answer-option');
-                        if (firstAnswer) {
-                            selectAnswer(0, firstAnswer);
-                        }
-                    }
-                    setTimeout(() => {
-                        nextQuestion();
-                    }, 1000);
-                }
-            }, 1000);
-        }
-        
-        function updateTimerDisplay() {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            timerElement.textContent = `Оставшееся время: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            
-            // Change color when time is running out
-            if (timeLeft <= 10) {
-                timerElement.style.color = '#e74c3c';
-                timerElement.style.backgroundColor = '#ffeaea';
-                timerElement.style.borderColor = '#ffcdd2';
-            } else {
-                timerElement.style.color = '#e74c3c';
-                timerElement.style.backgroundColor = '#fff';
-                timerElement.style.borderColor = '#ffcdd2';
-            }
-        }
-        
-        // Progress functions
-        function saveProgress() {
-            const progress = {
-                currentQuestion: currentQuestion,
-                score: score,
-                userAnswers: userAnswers
-            };
-            
-            localStorage.setItem(`testProgress_${currentUser}`, JSON.stringify(progress));
-        }
-        
-        function loadProgress() {
-            // In a real implementation, we would load progress here
-            // For this demo, we'll just clear old progress on page load
-        }
-        
-        // Admin functions
-        function restartTest() {
-            if (!isAdmin) {
-                alert('Только администратор может перезапустить тест');
-                return;
-            }
-            
-            if (confirm('Вы уверены, что хотите перезапустить тест? Все данные будут удалены.')) {
-                localStorage.removeItem(`testProgress_${currentUser}`);
-                localStorage.removeItem(`testResult_${currentUser}`);
-                startTest();
-            }
-        }
         
         // Initialize app
         init();
