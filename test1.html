@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тестирование - Медицинский колледж</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f0f8ff;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            background: linear-gradient(135deg, #1e5799, #207cca);
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .login-container, .test-container, .result-container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus, input[type="password"]:focus {
+            border-color: #207cca;
+            outline: none;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #1e5799, #207cca);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 87, 153, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .question-container {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .question-number {
+            font-size: 1.2rem;
+            color: #207cca;
+            margin-bottom: 10px;
+        }
+        
+        .question-text {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+        
+        .answers-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .answer-option {
+            padding: 20px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1.4rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+        
+        .answer-option:hover {
+            background: #e9f7fe;
+            border-color: #207cca;
+        }
+        
+        .answer-option.selected {
+            background: #d1ecf1;
+            border-color: #207cca;
+            font-weight: bold;
+        }
+        
+        .timer {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e74c3c;
+            margin: 20px 0;
+            padding: 15px;
+            background: #ffeaea;
+            border-radius: 8px;
+        }
+        
+        .feedback {
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 1.4rem;
+            text-align: center;
+        }
+        
+        .correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .explanation {
+            margin-top: 15px;
+            font-size: 1.2rem;
+            font-style: italic;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #207cca, #1e5799);
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .result-stats {
+            text-align: center;
+            font-size: 1.4rem;
+            margin: 20px 0;
+        }
+        
+        .admin-panel {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .admin-panel h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+        
+        .admin-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .admin-btn {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .admin-btn:hover {
+            background: #e0a800;
+        }
+        
+        .warning {
+            color: #e74c3c;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Медицинский колледж</h1>
+            <p>Система тестирования знаний студентов</p>
+        </header>
+        
+        <!-- Login Screen -->
+        <div id="loginScreen" class="login-container">
+            <h2>Вход в систему тестирования</h2>
+            <div class="form-group">
+                <label for="username">Фамилия:</label>
+                <input type="text" id="username" placeholder="Введите вашу фамилию">
+            </div>
+            <div class="form-group">
+                <label for="password">Пароль (4 цифры):</label>
+                <input type="password" id="password" placeholder="Введите 4 цифры">
+            </div>
+            <button id="loginBtn">Войти</button>
+            
+            <!-- Admin Access -->
+            <div class="admin-panel">
+                <h3>Доступ для администратора</h3>
+                <p>Для тестирования системы используйте:</p>
+                <p><strong>Логин:</strong> admin</p>
+                <p><strong>Пароль:</strong> admin</p>
+                <button id="adminLoginBtn" class="admin-btn">Войти как администратор</button>
+            </div>
+        </div>
+        
+        <!-- Test Screen -->
+        <div id="testScreen" class="test-container hidden">
+            <div class="progress-bar">
+                <div id="progressBar" class="progress" style="width: 0%"></div>
+            </div>
+            <div class="timer" id="timer">Оставшееся время: 01:00</div>
+            
+            <div class="question-container">
+                <div class="question-number" id="questionNumber">Вопрос 1 из 10</div>
+                <div class="question-text" id="questionText">Текст вопроса будет здесь</div>
+                
+                <div class="answers-container" id="answersContainer">
+                    <!-- Answer options will be inserted here -->
+                </div>
+            </div>
+            
+            <button id="nextBtn" class="hidden">Следующий вопрос</button>
+        </div>
+        
+        <!-- Feedback Screen -->
+        <div id="feedbackScreen" class="login-container hidden">
+            <div id="feedbackMessage" class="feedback">
+                <!-- Feedback message will be inserted here -->
+            </div>
+            <button id="continueBtn">Продолжить</button>
+        </div>
+        
+        <!-- Results Screen -->
+        <div id="resultsScreen" class="result-container hidden">
+            <h2>Тест завершен</h2>
+            <div class="result-stats">
+                <p>Правильных ответов: <span id="correctAnswers">0</span> из <span id="totalQuestions">0</span></p>
+                <p>Процент: <span id="percentage">0</span>%</p>
+            </div>
+            <div class="warning">
+                <p>Результаты сохранены локально. Администратор должен вручную собрать данные.</p>
+            </div>
+            <button id="restartBtn">Начать заново (только админ)</button>
+        </div>
+    </div>
+
+    <script>
+        // Sample test data
+        const testData = [
+            {
+                question: "Какой орган вырабатывает инсулин?",
+                answers: [
+                    "Печень",
+                    "Поджелудочная железа",
+                    "Щитовидная железа",
+                    "Надпочечники"
+                ],
+                correct: 1,
+                explanation: "Инсулин вырабатывается бета-клетками поджелудочной железы."
+            },
+            {
+                question: "Сколько камер имеет сердце человека?",
+                answers: [
+                    "2",
+                    "3",
+                    "4",
+                    "5"
+                ],
+                correct: 2,
+                explanation: "Сердце человека имеет 4 камеры: два предсердия и два желудочка."
+            },
+            {
+                question: "Какой витамин вырабатывается при воздействии солнечного света?",
+                answers: [
+                    "Витамин A",
+                    "Витамин B",
+                    "Витамин C",
+                    "Витамин D"
+                ],
+                correct: 3,
+                explanation: "Витамин D синтезируется в коже под действием ультрафиолетового излучения."
+            },
+            {
+                question: "Какой артериальный давление считается нормальным для взрослого человека?",
+                answers: [
+                    "140/90 мм рт. ст.",
+                    "120/80 мм рт. ст.",
+                    "130/85 мм рт. ст.",
+                    "110/70 мм рт. ст."
+                ],
+                correct: 1,
+                explanation: "Нормальное артериальное давление - 120/80 мм рт. ст."
+            },
+            {
+                question: "Какой орган является основным фильтром крови?",
+                answers: [
+                    "Сердце",
+                    "Легкие",
+                    "Почки",
+                    "Печень"
+                ],
+                correct: 2,
+                explanation: "Почки фильтруют кровь, удаляя продукты обмена и избыток воды."
+            },
+            {
+                question: "Сколько пар ребер у человека?",
+                answers: [
+                    "10",
+                    "11",
+                    "12",
+                    "13"
+                ],
+                correct: 2,
+                explanation: "У человека 12 пар ребер, всего 24 ребра."
+            },
+            {
+                question: "Какой гормон регулирует уровень кальция в крови?",
+                answers: [
+                    "Инсулин",
+                    "Паратгормон",
+                    "Адреналин",
+                    "Тестостерон"
+                ],
+                correct: 1,
+                explanation: "Паратгормон, вырабатываемый околощитовидными железами, регулирует уровень кальция."
+            },
+            {
+                question: "Какой объем крови у взрослого человека?",
+                answers: [
+                    "3-4 литра",
+                    "4-5 литров",
+                    "5-6 литров",
+                    "6-7 литров"
+                ],
+                correct: 1,
+                explanation: "Объем крови у взрослого человека составляет 4-5 литров."
+            },
+            {
+                question: "Какой нейромедиатор отвечает за передачу сигналов в нервно-мышечном синапсе?",
+                answers: [
+                    "Допамин",
+                    "Серотонин",
+                    "Ацетилхолин",
+                    "Норадреналин"
+                ],
+                correct: 2,
+                explanation: "Ацетилхолин - основной нейромедиатор в нервно-мышечном синапсе."
+            },
+            {
+                question: "Сколько зубов у взрослого человека?",
+                answers: [
+                    "28",
+                    "30",
+                    "32",
+                    "34"
+                ],
+                correct: 2,
+                explanation: "У взрослого человека 32 зуба, включая 4 зуба мудрости."
+            }
+        ];
+        
+        // DOM Elements
+        const loginScreen = document.getElementById('loginScreen');
+        const testScreen = document.getElementById('testScreen');
+        const feedbackScreen = document.getElementById('feedbackScreen');
+        const resultsScreen = document.getElementById('resultsScreen');
+        
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const adminLoginBtn = document.getElementById('adminLoginBtn');
+        
+        const questionNumber = document.getElementById('questionNumber');
+        const questionText = document.getElementById('questionText');
+        const answersContainer = document.getElementById('answersContainer');
+        const timerElement = document.getElementById('timer');
+        const nextBtn = document.getElementById('nextBtn');
+        const progressBar = document.getElementById('progressBar');
+        
+        const feedbackMessage = document.getElementById('feedbackMessage');
+        const continueBtn = document.getElementById('continueBtn');
+        
+        const correctAnswersElement = document.getElementById('correctAnswers');
+        const totalQuestionsElement = document.getElementById('totalQuestions');
+        const percentageElement = document.getElementById('percentage');
+        const restartBtn = document.getElementById('restartBtn');
+        
+        // App State
+        let currentUser = null;
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 60;
+        let timer = null;
+        let shuffledQuestions = [];
+        let userAnswers = [];
+        let isAdmin = false;
+        
+        // Initialize
+        function init() {
+            // Load saved progress if exists
+            loadProgress();
+            
+            // Event Listeners
+            loginBtn.addEventListener('click', login);
+            adminLoginBtn.addEventListener('click', adminLogin);
+            nextBtn.addEventListener('click', nextQuestion);
+            continueBtn.addEventListener('click', continueTest);
+            restartBtn.addEventListener('click', restartTest);
+            
+            // Before unload warning
+            window.addEventListener('beforeunload', function(e) {
+                if (currentUser && currentQuestion < shuffledQuestions.length) {
+                    e.preventDefault();
+                    e.returnValue = 'Тест не завершён. Прогресс будет сохранён, но нужно завершить позже.';
+                    return e.returnValue;
+                }
+            });
+        }
+        
+        // Login functions
+        function login() {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+            
+            if (!username || !password) {
+                alert('Пожалуйста, введите фамилию и пароль');
+                return;
+            }
+            
+            // Simple validation (in real app, this would be server-side)
+            if (password.length !== 4 || !/^\d+$/.test(password)) {
+                alert('Пароль должен состоять из 4 цифр');
+                return;
+            }
+            
+            currentUser = username;
+            isAdmin = false;
+            startTest();
+        }
+        
+        function adminLogin() {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+            
+            // Admin credentials
+            if (username === 'admin' && password === 'admin') {
+                currentUser = 'Администратор';
+                isAdmin = true;
+                startTest();
+            } else {
+                alert('Неверные учетные данные администратора');
+            }
+        }
+        
+        // Test functions
+        function startTest() {
+            // Shuffle questions
+            shuffledQuestions = [...testData].sort(() => Math.random() - 0.5);
+            
+            // Check for saved progress
+            const savedProgress = localStorage.getItem(`testProgress_${currentUser}`);
+            if (savedProgress) {
+                const progress = JSON.parse(savedProgress);
+                if (confirm(`Продолжить тест? Последний вопрос: №${progress.currentQuestion + 1}`)) {
+                    currentQuestion = progress.currentQuestion;
+                    score = progress.score;
+                    userAnswers = progress.userAnswers || [];
+                } else {
+                    resetTest();
+                }
+            } else {
+                resetTest();
+            }
+            
+            // Update document title
+            document.title = isAdmin ? "✅ Админ: Тест активен" : "❌ ВНИМАНИЕ: Тест не завершён!";
+            
+            // Show test screen
+            loginScreen.classList.add('hidden');
+            testScreen.classList.remove('hidden');
+            
+            showQuestion();
+            startTimer();
+        }
+        
+        function resetTest() {
+            currentQuestion = 0;
+            score = 0;
+            userAnswers = [];
+            timeLeft = 60;
+        }
+        
+        function showQuestion() {
+            if (currentQuestion >= shuffledQuestions.length) {
+                showResults();
+                return;
+            }
+            
+            const question = shuffledQuestions[currentQuestion];
+            
+            // Update UI
+            questionNumber.textContent = `Вопрос ${currentQuestion + 1} из ${shuffledQuestions.length}`;
+            questionText.textContent = question.question;
+            
+            // Update progress bar
+            const progress = ((currentQuestion) / shuffledQuestions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            // Clear previous answers
+            answersContainer.innerHTML = '';
+            
+            // Add answer options
+            question.answers.forEach((answer, index) => {
+                const answerElement = document.createElement('div');
+                answerElement.className = 'answer-option';
+                answerElement.textContent = answer;
+                answerElement.dataset.index = index;
+                
+                answerElement.addEventListener('click', () => selectAnswer(index, answerElement));
+                
+                answersContainer.appendChild(answerElement);
+            });
+            
+            // Hide next button until answer is selected
+            nextBtn.classList.add('hidden');
+        }
+        
+        function selectAnswer(selectedIndex, element) {
+            // Remove selection from other answers
+            document.querySelectorAll('.answer-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Mark selected answer
+            element.classList.add('selected');
+            
+            // Save user answer
+            userAnswers[currentQuestion] = selectedIndex;
+            
+            // Show next button
+            nextBtn.classList.remove('hidden');
+        }
+        
+        function nextQuestion() {
+            if (userAnswers[currentQuestion] === undefined) {
+                alert('Пожалуйста, выберите ответ');
+                return;
+            }
+            
+            // Save progress
+            saveProgress();
+            
+            // Move to next question
+            currentQuestion++;
+            
+            // Reset timer
+            timeLeft = 60;
+            
+            // Show feedback
+            showFeedback();
+        }
+        
+        function showFeedback() {
+            const question = shuffledQuestions[currentQuestion - 1];
+            const userAnswer = userAnswers[currentQuestion - 1];
+            const isCorrect = userAnswer === question.correct;
+            
+            // Update score
+            if (isCorrect) {
+                score++;
+            }
+            
+            // Show feedback
+            testScreen.classList.add('hidden');
+            feedbackScreen.classList.remove('hidden');
+            
+            // Create feedback message
+            feedbackMessage.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+            feedbackMessage.innerHTML = `
+                <p>${isCorrect ? '✅ Правильно!' : '❌ Неправильно!'}</p>
+                ${!isCorrect ? `<p>Правильный ответ: ${question.answers[question.correct]}</p>` : ''}
+                <p class="explanation">${question.explanation}</p>
+            `;
+        }
+        
+        function continueTest() {
+            feedbackScreen.classList.add('hidden');
+            
+            if (currentQuestion >= shuffledQuestions.length) {
+                showResults();
+            } else {
+                testScreen.classList.remove('hidden');
+                showQuestion();
+                startTimer();
+            }
+        }
+        
+        function showResults() {
+            testScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            
+            // Update results
+            correctAnswersElement.textContent = score;
+            totalQuestionsElement.textContent = shuffledQuestions.length;
+            const percentage = Math.round((score / shuffledQuestions.length) * 100);
+            percentageElement.textContent = percentage;
+            
+            // Save final results
+            const resultData = {
+                user: currentUser,
+                score: score,
+                total: shuffledQuestions.length,
+                percentage: percentage,
+                date: new Date().toISOString(),
+                answers: userAnswers.map((answer, index) => ({
+                    question: shuffledQuestions[index].question,
+                    userAnswer: shuffledQuestions[index].answers[answer],
+                    correctAnswer: shuffledQuestions[index].answers[shuffledQuestions[index].correct],
+                    isCorrect: answer === shuffledQuestions[index].correct
+                }))
+            };
+            
+            localStorage.setItem(`testResult_${currentUser}`, JSON.stringify(resultData));
+            
+            // Clear progress
+            localStorage.removeItem(`testProgress_${currentUser}`);
+            
+            // Update document title
+            document.title = "Тест завершен";
+        }
+        
+        // Timer functions
+        function startTimer() {
+            clearInterval(timer);
+            timeLeft = 60;
+            updateTimerDisplay();
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    // Auto-select first answer if time runs out
+                    if (userAnswers[currentQuestion] === undefined) {
+                        const firstAnswer = document.querySelector('.answer-option');
+                        if (firstAnswer) {
+                            selectAnswer(0, firstAnswer);
+                        }
+                    }
+                    setTimeout(() => {
+                        nextQuestion();
+                    }, 1000);
+                }
+            }, 1000);
+        }
+        
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `Оставшееся время: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Change color when time is running out
+            if (timeLeft <= 10) {
+                timerElement.style.color = '#e74c3c';
+                timerElement.style.backgroundColor = '#ffeaea';
+            } else {
+                timerElement.style.color = '#e74c3c';
+                timerElement.style.backgroundColor = '#fff';
+            }
+        }
+        
+        // Progress functions
+        function saveProgress() {
+            const progress = {
+                currentQuestion: currentQuestion,
+                score: score,
+                userAnswers: userAnswers
+            };
+            
+            localStorage.setItem(`testProgress_${currentUser}`, JSON.stringify(progress));
+        }
+        
+        function loadProgress() {
+            // In a real implementation, we would load progress here
+            // For this demo, we'll just clear old progress on page load
+        }
+        
+        // Admin functions
+        function restartTest() {
+            if (!isAdmin) {
+                alert('Только администратор может перезапустить тест');
+                return;
+            }
+            
+            if (confirm('Вы уверены, что хотите перезапустить тест? Все данные будут удалены.')) {
+                localStorage.removeItem(`testProgress_${currentUser}`);
+                localStorage.removeItem(`testResult_${currentUser}`);
+                startTest();
+            }
+        }
+        
+        // Initialize app
+        init();
+    </script>
+</body>
+</html>
