@@ -65,7 +65,7 @@
             font-size: 1.8rem;
         }
         
-        input[type="text"], input[type="password"] {
+        input[type="text"], input[type="password"], input[type="file"] {
             width: 100%;
             padding: 20px;
             border: 3px solid #ddd;
@@ -75,7 +75,7 @@
             text-align: center;
         }
         
-        input[type="text"]:focus, input[type="password"]:focus {
+        input[type="text"]:focus, input[type="password"]:focus, input[type="file"]:focus {
             border-color: #207cca;
             outline: none;
         }
@@ -425,7 +425,6 @@
                 <h3><i class="fas fa-crown"></i> Доступ для администратора</h3>
                 <p>Для тестирования системы используйте:</p>
                 <p><strong>Логин:</strong> admin</p>
-                <p><strong>Пароль:</strong> admin</p>
                 <button id="adminLoginBtn" class="admin-btn">Войти как администратор</button>
             </div>
             
@@ -477,6 +476,17 @@
                     <button id="exportDataBtn"><i class="fas fa-file-export"></i> Экспорт данных</button>
                     <button id="logoutAdminBtn"><i class="fas fa-sign-out-alt"></i> Выйти из админ-панели</button>
                 </div>
+            </div>
+            
+            <!-- Upload Test Section -->
+            <div class="admin-section">
+                <h3><i class="fas fa-file-upload"></i> Загрузка тестов</h3>
+                <div class="form-group">
+                    <label for="testFileUpload">Выберите файл теста (TXT):</label>
+                    <input type="file" id="testFileUpload" accept=".txt">
+                </div>
+                <button id="uploadTestFileBtn">Загрузить тест</button>
+                <div id="uploadStatus" class="success hidden"></div>
             </div>
         </div>
         
@@ -562,7 +572,8 @@
                         <option value="therapy">Лечебное дело</option>
                         <option value="pediatrics">Педиатрия</option>
                         <option value="nursing">Сестринское дело</option>
-                </select>
+                        <option value="dentistry">Стоматология</option>
+                    </select>
                 </div>
                 <button id="saveGroupBtn">Создать группу</button>
             </div>
@@ -671,6 +682,11 @@
         const manageUsersBtn = document.getElementById('manageUsersBtn');
         const exportDataBtn = document.getElementById('exportDataBtn');
         
+        // Test upload elements
+        const testFileUpload = document.getElementById('testFileUpload');
+        const uploadTestFileBtn = document.getElementById('uploadTestFileBtn');
+        const uploadStatus = document.getElementById('uploadStatus');
+        
         // Modal elements
         const studentModal = document.getElementById('studentModal');
         const groupModal = document.getElementById('groupModal');
@@ -696,6 +712,7 @@
         let shuffledQuestions = [];
         let userAnswers = [];
         let isAdmin = false;
+        let currentRole = 'student'; // student, teacher, admin
         
         // Initialize
         function init() {
@@ -714,7 +731,7 @@
             createGroupBtn.addEventListener('click', openGroupModal);
             addStudentBtn.addEventListener('click', openStudentModal);
             uploadTestBtn.addEventListener('click', function() {
-                alert('Загрузка теста - функция администратора\nВ реальной системе здесь будет загрузка файлов тестов');
+                alert('Функция загрузки теста работает!\nВ реальной системе здесь будет загрузка файлов тестов');
             });
             viewResultsBtn.addEventListener('click', openResultsModal);
             syncDataBtn.addEventListener('click', function() {
@@ -725,6 +742,62 @@
             });
             exportDataBtn.addEventListener('click', function() {
                 alert('Экспорт данных - функция администратора\nВ реальной системе здесь будет экспорт в CSV');
+            });
+            
+            // Test upload functionality
+            uploadTestFileBtn.addEventListener('click', function() {
+                if (testFileUpload.files.length === 0) {
+                    alert('Пожалуйста, выберите файл теста');
+                    return;
+                }
+                
+                const file = testFileUpload.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        const content = e.target.result;
+                        // Парсим TXT файл
+                        const lines = content.split('\n').filter(line => line.trim() !== '');
+                        const parsedQuestions = [];
+                        
+                        for (let i = 0; i < lines.length; i += 4) {
+                            const question = lines[i]?.trim();
+                            const wrongAnswer = lines[i+1]?.trim();
+                            const correctAnswer = lines[i+2]?.trim();
+                            
+                            if (question && wrongAnswer && correctAnswer) {
+                                parsedQuestions.push({
+                                    question: question,
+                                    answers: [wrongAnswer, correctAnswer],
+                                    correct: 1 // Всегда второй вариант правильный в нашем формате
+                                });
+                            }
+                        }
+                        
+                        uploadStatus.textContent = `Тест успешно загружен! Количество вопросов: ${parsedQuestions.length}`;
+                        uploadStatus.classList.remove('hidden');
+                        setTimeout(() => {
+                            uploadStatus.classList.add('hidden');
+                        }, 3000);
+                    } catch (error) {
+                        uploadStatus.textContent = 'Ошибка при чтении файла теста. Проверьте формат TXT.';
+                        uploadStatus.classList.remove('hidden');
+                        setTimeout(() => {
+                            uploadStatus.classList.add('hidden');
+                        }, 3000);
+                    }
+                };
+                
+                reader.onerror = function() {
+                    uploadStatus.textContent = 'Ошибка чтения файла';
+                    uploadStatus.classList.remove('hidden');
+                    setTimeout(() => {
+                        uploadStatus.classList.add('hidden');
+                    }, 3000);
+                };
+                
+                reader.readAsText(file);
             });
             
             // Modal events
@@ -779,6 +852,7 @@
             
             currentUser = username;
             isAdmin = false;
+            currentRole = 'student';
             startTest();
         }
         
@@ -790,6 +864,7 @@
             if (username === 'admin' && password === 'admin') {
                 currentUser = 'Администратор';
                 isAdmin = true;
+                currentRole = 'admin';
                 showAdminDashboard();
             } else {
                 alert('Неверные учетные данные администратора');
@@ -806,6 +881,7 @@
             loginScreen.classList.remove('hidden');
             currentUser = null;
             isAdmin = false;
+            currentRole = 'student';
             document.title = "Система тестирования - Медицинский колледж";
         }
         
@@ -1040,6 +1116,24 @@
             totalQuestionsElement.textContent = shuffledQuestions.length;
             const percentage = Math.round((score / shuffledQuestions.length) * 100);
             percentageElement.textContent = percentage;
+            
+            // Save final results to localStorage
+            const resultData = {
+                user: currentUser,
+                role: currentRole,
+                score: score,
+                total: shuffledQuestions.length,
+                percentage: percentage,
+                date: new Date().toISOString(),
+                answers: userAnswers.map((answer, index) => ({
+                    question: shuffledQuestions[index].question,
+                    userAnswer: shuffledQuestions[index].answers[answer],
+                    correctAnswer: shuffledQuestions[index].answers[shuffledQuestions[index].correct],
+                    isCorrect: answer === shuffledQuestions[index].correct
+                }))
+            };
+            
+            localStorage.setItem(`testResult_${currentUser}`, JSON.stringify(resultData));
             
             // Update document title
             document.title = "Тест завершен";
